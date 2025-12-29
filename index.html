@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auto Secure License</title>
-    <script src="https://embed.billgang.store/embed.js"></script>
     <style>
         * {
             margin: 0;
@@ -29,7 +28,7 @@
             position: absolute;
             border-radius: 50%;
             background: rgba(99, 102, 241, 0.1);
-            animation: float 20s infinite ease-in-out;
+            transition: transform 0.1s ease-out;
         }
 
         .particle-1 {
@@ -37,7 +36,6 @@
             height: 300px;
             top: -150px;
             left: -150px;
-            animation-delay: 0s;
         }
 
         .particle-2 {
@@ -46,7 +44,6 @@
             bottom: -100px;
             right: -100px;
             background: rgba(147, 51, 234, 0.1);
-            animation-delay: 5s;
         }
 
         .particle-3 {
@@ -55,19 +52,6 @@
             top: 50%;
             right: 10%;
             background: rgba(59, 130, 246, 0.1);
-            animation-delay: 10s;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translate(0, 0) scale(1);
-            }
-            33% {
-                transform: translate(50px, -50px) scale(1.1);
-            }
-            66% {
-                transform: translate(-30px, 30px) scale(0.9);
-            }
         }
 
         .container {
@@ -81,6 +65,18 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             max-width: 500px;
             width: 90%;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
@@ -169,6 +165,17 @@
             color: #a5b4fc;
         }
 
+        .debug-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-align: left;
+            color: #10b981;
+            font-family: monospace;
+        }
+
         @media (max-width: 600px) {
             h1 {
                 font-size: 2rem;
@@ -194,6 +201,7 @@
 
         <div class="button-group">
             <button 
+                id="purchaseBtn"
                 class="purchase-btn"
                 data-billgang-product-path="auto-secure-license"
                 data-billgang-domain="zyros.bgng.io"
@@ -205,38 +213,48 @@
                 💬 Join Discord
             </a>
         </div>
+
+        <div class="debug-info" id="debugInfo">
+            🔍 Debug: Warte auf Button-Click...
+        </div>
     </div>
 
+    <!-- Billgang Script am Ende laden -->
+    <script src="https://platform.billgang.com/embed.js"></script>
+
     <script>
-        // Smooth animation on load
+        // Debug Logger
+        function log(msg) {
+            console.log('🔍 DEBUG:', msg);
+            const debugEl = document.getElementById('debugInfo');
+            debugEl.innerHTML += '<br>' + msg;
+        }
+
+        // Check ob Billgang geladen ist
         window.addEventListener('load', () => {
-            document.querySelector('.container').style.animation = 'fadeIn 0.6s ease';
+            log('✅ Seite geladen');
+            
+            setTimeout(() => {
+                if (typeof window.Billgang !== 'undefined') {
+                    log('✅ Billgang Script erfolgreich geladen!');
+                } else {
+                    log('❌ Billgang Script NICHT geladen!');
+                }
+            }, 1000);
         });
 
-        // Add fade in animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Optional: Add click feedback
-        document.querySelectorAll('button, .discord-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                this.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    this.style.transform = '';
-                }, 150);
-            });
+        // Button Click Handler
+        const btn = document.getElementById('purchaseBtn');
+        btn.addEventListener('click', function(e) {
+            log('🖱️ Button geklickt!');
+            log('Path: ' + this.getAttribute('data-billgang-product-path'));
+            log('Domain: ' + this.getAttribute('data-billgang-domain'));
+            
+            // Animation
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
         });
 
         // Interactive particles that run away from mouse
@@ -244,64 +262,43 @@
         let mouseX = 0;
         let mouseY = 0;
 
-        // Store particle positions
         const particleData = Array.from(particles).map(p => ({
             element: p,
             x: 0,
-            y: 0,
-            baseX: 0,
-            baseY: 0
+            y: 0
         }));
 
-        // Initialize base positions
-        particleData.forEach(data => {
-            const rect = data.element.getBoundingClientRect();
-            data.baseX = rect.left + rect.width / 2;
-            data.baseY = rect.top + rect.height / 2;
-            data.x = 0;
-            data.y = 0;
-        });
-
-        // Track mouse position
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
         });
 
-        // Animation loop
         function animate() {
             particleData.forEach(data => {
                 const rect = data.element.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
 
-                // Calculate distance from mouse
                 const dx = centerX - mouseX;
                 const dy = centerY - mouseY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
-                // Flee radius
                 const fleeRadius = 300;
 
                 if (distance < fleeRadius) {
-                    // Calculate flee force
                     const force = (fleeRadius - distance) / fleeRadius;
                     const angle = Math.atan2(dy, dx);
                     
-                    // Move away from mouse
                     data.x += Math.cos(angle) * force * 8;
                     data.y += Math.sin(angle) * force * 8;
                 } else {
-                    // Return to base position gradually
                     data.x *= 0.95;
                     data.y *= 0.95;
                 }
 
-                // Apply limits
                 data.x = Math.max(-200, Math.min(200, data.x));
                 data.y = Math.max(-200, Math.min(200, data.y));
 
-                // Apply transform
                 data.element.style.transform = `translate(${data.x}px, ${data.y}px)`;
             });
 
