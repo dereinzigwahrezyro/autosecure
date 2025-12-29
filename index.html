@@ -165,17 +165,6 @@
             color: #a5b4fc;
         }
 
-        .debug-info {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            font-size: 0.85rem;
-            text-align: left;
-            color: #10b981;
-            font-family: monospace;
-        }
-
         @media (max-width: 600px) {
             h1 {
                 font-size: 2rem;
@@ -213,44 +202,15 @@
                 💬 Join Discord
             </a>
         </div>
-
-        <div class="debug-info" id="debugInfo">
-            🔍 Debug: Warte auf Button-Click...
-        </div>
     </div>
 
     <!-- Billgang Script am Ende laden -->
     <script src="https://platform.billgang.com/embed.js"></script>
 
     <script>
-        // Debug Logger
-        function log(msg) {
-            console.log('🔍 DEBUG:', msg);
-            const debugEl = document.getElementById('debugInfo');
-            debugEl.innerHTML += '<br>' + msg;
-        }
-
-        // Check ob Billgang geladen ist
-        window.addEventListener('load', () => {
-            log('✅ Seite geladen');
-            
-            setTimeout(() => {
-                if (typeof window.Billgang !== 'undefined') {
-                    log('✅ Billgang Script erfolgreich geladen!');
-                } else {
-                    log('❌ Billgang Script NICHT geladen!');
-                }
-            }, 1000);
-        });
-
-        // Button Click Handler
+        // Button Click Animation
         const btn = document.getElementById('purchaseBtn');
-        btn.addEventListener('click', function(e) {
-            log('🖱️ Button geklickt!');
-            log('Path: ' + this.getAttribute('data-billgang-product-path'));
-            log('Domain: ' + this.getAttribute('data-billgang-domain'));
-            
-            // Animation
+        btn.addEventListener('click', function() {
             this.style.transform = 'scale(0.95)';
             setTimeout(() => {
                 this.style.transform = '';
